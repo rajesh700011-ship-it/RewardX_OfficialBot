@@ -156,6 +156,7 @@ if(!DEMO&&!(API_BASE&&tg&&tg.initData)&&window.firebase){
 firebase.initializeApp(firebaseConfig);
 const R=p=>firebase.database().ref(p),G=async p=>{const q=R(p).once("value"),t=new Promise((_,j)=>setTimeout(()=>j(new Error("timeout: "+p)),12000));return (await Promise.race([q,t])).val()},GS=async(p,d)=>{try{return await G(p)}catch(e){console.warn("read failed",p,e);return d}},N=v=>Number(v)||0,r2=v=>Math.round(v*100)/100,on=v=>v==="1"||v===1||v===true;
 const uid=String(tgUser().id),day=()=>new Date().toISOString().slice(0,10).replace(/-/g,""),ready=Promise.resolve();
+async function wds(){const W=await GS("userWd/"+uid,{})||{},ks=Object.keys(W),st=await Promise.all(ks.map(k=>GS("wdStatus/"+k+"/pub",null)));return ks.map((k,i)=>({id:k,...W[k],status:st[i]||"pending"}))}
 const DEF={ad_reward:1,daily_ad_limit:20,ads_enabled:1,ad_zone:"",ad_sdk_url:"",ref_reward:5,ref_enabled:1,required_referrals:3,min_withdrawal:100,max_withdrawal:5000,withdrawal_fee:0,welcome_bonus:20,welcome_enabled:1,daily_bonus:2,daily_enabled:0,method_bkash:1,method_nagad:1,method_rocket:1,popup_enabled:1,popup_title:"",popup_body:"",popup_btn:"বুঝেছি",popup_link:""};
 const cfgS=async()=>({...DEF,...(await GS("settings/pub",{})||{})}),put=async(p,v)=>(await R(p).transaction(c=>c?undefined:v)).committed,ent=(type,amount,description)=>({type,amount,description,t:Date.now()});
 async function activate(S){const rb=await G("users/"+uid+"/referred_by");if(!rb||!on(S.ref_enabled)||(await G("referrals/"+rb+"/"+uid))!=="pending")return;
